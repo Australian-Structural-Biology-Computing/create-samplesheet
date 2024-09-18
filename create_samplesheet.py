@@ -4,6 +4,8 @@ import argparse, os, tempfile, json, re
 # Consts
 MODE_STRING_CSV = 0
 MODE_DIR_CSV = 1
+MODE_STRING_JSON = 2
+MODE_DIR_JSON = 3
 
 class Sample:
     def __init__(self, name, path, data):
@@ -15,11 +17,14 @@ def sample_name(aa_seq, seq_chars=6):
     trunc_aa_seq = aa_seq[:min(seq_chars, len(aa_seq))]
     return trunc_aa_seq
 
-def read_fasta(fp):
+def read_fasta(fp, read_data=False, single_line=True):
     fasta_samples = []
     for line in fp:
         if re.search("^. .*$", line):
             fasta_samples.append(Sample(line[2:].strip(), fp.name, None))
+            if single_line:
+                break
+
     return fasta_samples
 
 def file_name(sample_id, prefix='manual_entry', suffix='af2', delim='-', extension='fasta'):
@@ -40,7 +45,10 @@ def create_json(data, fp):
     dict_data = {"entities": []}
     
     for row in data:
-        dict_data["entities"].append({"type": "protein"})
+        dict_data["entities"].append({"type": "protein", "sequence": row.data, "count": "1"})
+    
+    json.dump(dict_data, fp)
+    fp.flush()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -60,7 +68,8 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--fasta-header', help='Column name for fasta path', default='fasta', dest='fasta_header')
     parser.add_argument('-j', '--json', help='Output json format instead of csv', action='store_true', dest='json')
     parser.add_argument('-t', '--fasta-dir', help='Output directory for temporary fasta files', default=os.getcwd(), dest='fasta_dir')
-    parser.add_argument('-r', '--fasta-match', help='Regex to match for fasta files in directory mode', default='.*\.fa.*$', dest='fasta_regex')
+    parser.add_argument('-r', '--fasta-match', help='Regex to match for fasta files in directory mode', default='.*\.fa(sta)?.*$', dest='fasta_regex')
+    parser.add_argument('--monomer', help='Create a samplesheet entry for each sample in a fasta file', default=False, action='store_true', dest='monomer')
 
     args = parser.parse_args()
 
@@ -93,6 +102,25 @@ if __name__ == "__main__":
         samplesheet_path = args.output_file
         with open(samplesheet_path, "w") as ss_fp:
             create_csv([sample_data], args.seq_header, args.fasta_header, ss_fp)
+    
+    if mode == MODE_STRING_JSON:
+        # Generate metadata for AA string
+        aa_sample_name = sample_name(args.aa_string, seq_chars=args.seq_chars)
+        aa_sample_file_name = file_name(aa_sample_name, prefix=args.aa_prefix, suffix=args.aa_suffix, extension=args.output_extension)
+        aa_path = args.fasta_dir + "/" + aa_sample_file_name 
+
+        # Create the fasta file
+        with open(aa_path, "w") as aa_fp:
+            make_fasta(args.aa_string, aa_sample_name, aa_fp)
+
+        sample_data = Sample(aa_sample_name, aa_path, args.aa_string)
+
+        if args.output_file == "samplesheet.csv":
+            args.output_file = args.output_file.replace(".csv", ".json")
+        samplesheet_path = args.output_file
+        
+        with open(samplesheet_path, "w") as ss_fp:
+            create_json([sample_data], ss_fp)
 
     if mode == MODE_DIR_CSV:
         file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f)) and re.search(args.fasta_regex, f)]         
@@ -100,8 +128,18 @@ if __name__ == "__main__":
 
         for file_name in file_list:
             with open(file_name, "r") as file_fp:
-                sample_data.extend(read_fasta(file_fp))
+                sample_data.extend(read_fasta(file_fp, single_line=(not args.monomer)))
         
         samplesheet_path = args.output_file
         with open(samplesheet_path, "w") as ss_fp:
             create_csv(sample_data, args.seq_header, args.fasta_header, ss_fp)
+
+    if mode == MODE_DIR_JSON:
+        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f)) and re.search(args.fasta_regex, f)]         
+        sample_data = []
+
+        for file_name in file_list:
+            with open(file_name, "r") as file_fp:
+                sample_data.extend(read_fasta(file_fp, read_data=True, single_line=False))
+        
+        samplesheet_path = args.output_file
