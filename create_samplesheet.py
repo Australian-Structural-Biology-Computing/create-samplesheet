@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import argparse, os, tempfile, json, re, logging, sys
-VERSION="0.2"
+VERSION="0.3"
 
 # Consts
 MODE_STRING_CSV = 0
@@ -17,6 +17,11 @@ class Sample:
         self.name = name
         self.path = path
         self.data = data
+
+def sanitize_input(input_str, disallowed_chars = [',', ' ', '<', '>', '.', "'", '"', ';', ':'], replcement='_'):
+    for i in disallowed_chars:
+        input_str = input_str.replace(i, '_')
+    return input_str
 
 def sample_name(aa_seq, seq_chars=6):
     trunc_aa_seq = aa_seq[:min(seq_chars, len(aa_seq))]
