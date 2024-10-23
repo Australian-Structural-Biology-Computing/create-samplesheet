@@ -58,7 +58,7 @@ def create_csv(data, header_seq, header_fasta, fp):
     fp.write(f"{header_seq},{header_fasta}\n")
     logger.debug(f"Written CSV header {header_seq},{header_fasta}")
     for row in data:
-        fp.write(row.name + "," + row.path + "\n")
+        fp.write(sanitize_input(row.name) + "," + row.path + "\n")
         logger.debug(f"Wrote row for {row.name}")
 
     fp.flush()
