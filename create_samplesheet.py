@@ -1,11 +1,16 @@
 #!/usr/bin/python3
-import argparse, os, tempfile, json, re
+import argparse, os, tempfile, json, re, logging, sys
+VERSION="0.1"
 
 # Consts
 MODE_STRING_CSV = 0
 MODE_DIR_CSV = 1
 MODE_STRING_JSON = 2
 MODE_DIR_JSON = 3
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig()
 
 class Sample:
     def __init__(self, name, path, data):
@@ -36,8 +41,10 @@ def make_fasta(aa_seq, sample_name, fp, header='>'):
 
 def create_csv(data, header_seq, header_fasta, fp):
     fp.write(f"{header_seq},{header_fasta}\n")
+    logger.debug(f"Written CSV header {header_seq},{header_fasta}")
     for row in data:
         fp.write(row.name + "," + row.path + "\n")
+        logger.debug(f"Wrote row for {row.name}")
 
     fp.flush()
 
@@ -50,10 +57,14 @@ def create_json(data, fp):
     json.dump(dict_data, fp)
     fp.flush()
 
+def version():
+    print(f"create-samplesheet version {VERSION}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="Create Samplesheet",
-        description="Utility to create a samplesheet from directory, or AA string")
+        description="Utility to create a samplesheet from directory, or AA string",
+        epilog="Written by Nathan Glades <n.glades@unsw.edu.au>")
 
     parser.add_argument('-a', '--aa-string', help='Single amino acid string', dest='aa_string')
     parser.add_argument('-d', '--directory', help='Directory containing fasta files', dest='dir')
@@ -70,8 +81,22 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--fasta-dir', help='Output directory for temporary fasta files', default=os.getcwd(), dest='fasta_dir')
     parser.add_argument('-r', '--fasta-match', help='Regex to match for fasta files in directory mode', default='.*\.fa(sta)?.*$', dest='fasta_regex')
     parser.add_argument('--monomer', help='Create a samplesheet entry for each sample in a fasta file', default=False, action='store_true', dest='monomer')
+    parser.add_argument('--version', help='Show version number', default=False, action='store_true', dest='version')
+    parser.add_argument('--debug', help='Show debug output', default=False, action='store_true', dest='debug')
 
     args = parser.parse_args()
+    
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
+    if (args.version):
+        version()
+        exit(0)
+
+    if (args.debug):
+        version()
 
     # Validate that an input was provided
     if (not args.aa_string and not args.dir):
@@ -85,6 +110,7 @@ if __name__ == "__main__":
     mode = 0
     mode |= bool(args.dir)
     mode |= args.json << 1
+    logger.debug(f"mode: {mode}")
 
     if mode == MODE_STRING_CSV:
         # Generate metadata for AA string
@@ -123,14 +149,20 @@ if __name__ == "__main__":
             create_json([sample_data], ss_fp)
 
     if mode == MODE_DIR_CSV:
-        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f)) and re.search(args.fasta_regex, f)]         
+        logger.debug(f"Checking {args.dir} for fasta files")
+        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]         
+        logger.debug(f"Fasta files: {file_list}")
+        file_list = [i for i in file_list if re.search(args.fasta_regex, i)]
+        logger.debug(f"File list aginst regex: {file_list}")
         sample_data = []
 
         for file_name in file_list:
-            with open(file_name, "r") as file_fp:
-                sample_data.extend(read_fasta(file_fp, single_line=(not args.monomer)))
+            fasta_data = read_fasta(file_name, single_line=(not args.monomer))
+            sample_data.extend(fasta_data)
+            logger.debug(f"Added sample {file_name}, {fasta_data}")
         
         samplesheet_path = args.output_file
+        logger.debug(f"Sample data array length: {len(sample_data)}")
         with open(samplesheet_path, "w") as ss_fp:
             create_csv(sample_data, args.seq_header, args.fasta_header, ss_fp)
 
