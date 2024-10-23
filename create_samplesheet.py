@@ -24,11 +24,21 @@ def sample_name(aa_seq, seq_chars=6):
 
 def read_fasta(fp, read_data=False, single_line=True):
     fasta_samples = []
-    for line in fp:
-        if re.search("^. .*$", line):
-            fasta_samples.append(Sample(line[2:].strip(), fp.name, None))
+    logger.debug(f"Reading {fp}")
+
+    fasta_fp = open(fp, 'r')
+    fasta_fp.seek(0)
+    lines = fasta_fp.readlines()
+    logger.debug(f"Fasta content {lines}")
+
+    for fasta_line in lines:
+        if re.search("^.( ?).*$", fasta_line):
+            fasta_samples.append(Sample(fasta_line[1:].strip(), fp, None))
             if single_line:
                 break
+
+    fasta_fp.close()
+    logger.debug(f"Number of samples in {fp}: {len(fasta_samples)}")
 
     return fasta_samples
 
