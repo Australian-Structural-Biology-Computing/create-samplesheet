@@ -37,7 +37,7 @@ def read_fasta(fp, read_data=False, single_line=True):
     logger.debug(f"Fasta content {lines}")
 
     for fasta_line in lines:
-        if re.search("^.( ?).*$", fasta_line):
+        if re.search("^\>( ?).*$", fasta_line):
             fasta_samples.append(Sample(fasta_line[1:].strip(), fp, None))
             if single_line:
                 break
