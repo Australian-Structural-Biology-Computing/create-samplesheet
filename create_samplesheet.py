@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import argparse, os, tempfile, json, re, logging, sys
-VERSION="0.3"
+VERSION="0.4"
 
 # Consts
 MODE_STRING_CSV = 0
