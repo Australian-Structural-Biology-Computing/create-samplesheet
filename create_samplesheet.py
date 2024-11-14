@@ -61,9 +61,10 @@ def read_fasta(fp, read_data=False, single_line=True):
 def file_name(sample_id, prefix='manual_entry', suffix='af2', delim='-', extension='fasta'):
     return ''.join([prefix, delim, sample_id, delim, suffix, '.', extension]) 
 
-def make_fasta(aa_seq, sample_name, fp, header='>'):
-    fp.write(f"{header}{sample_name}\n{aa_seq}")
-    fp.flush()
+def make_fasta(sample : Sample, header='>'):
+    with open(sample.path, "w") as fp:
+        fp.write(f"{header}{sample.name}\n{sample.data}")
+        fp.flush()
 
 def create_csv(data, header_seq, header_fasta, fp):
     fp.write(f"{header_seq},{header_fasta}\n")
