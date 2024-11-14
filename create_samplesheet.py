@@ -146,10 +146,8 @@ if __name__ == "__main__":
         aa_path = args.fasta_dir + "/" + aa_sample_file_name 
 
         # Create the fasta file
-        with open(aa_path, "w") as aa_fp:
-            make_fasta(args.aa_string, aa_sample_name, aa_fp)
-
         sample_data = Sample(aa_sample_name, aa_path, args.aa_string)
+        make_fasta(sample_data)
        
         # Write the samplesheet 
         samplesheet_path = args.output_file
@@ -163,10 +161,8 @@ if __name__ == "__main__":
         aa_path = args.fasta_dir + "/" + aa_sample_file_name 
 
         # Create the fasta file
-        with open(aa_path, "w") as aa_fp:
-            make_fasta(args.aa_string, aa_sample_name, aa_fp)
-
         sample_data = Sample(aa_sample_name, aa_path, args.aa_string)
+        make_fasta(sample_data)
 
         if args.output_file == "samplesheet.csv":
             args.output_file = args.output_file.replace(".csv", ".json")
