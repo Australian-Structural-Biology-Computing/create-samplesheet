@@ -39,15 +39,19 @@ def read_fasta(fp, read_data=False, single_line=True):
     temp_sample_object = None
 
     for fasta_line in lines:
-        if re.search("^\>( ?).*$", fasta_line):
+        if re.search("^\\>.*$", fasta_line):
             # This is to add support for fixed-width fasta files
+            logger.debug(f"Found header")
             if temp_sample_object is not None:
                 fasta_samples.append(temp_sample_object)
-            temp_sample_object = Sample(fasta_line[1:].strip(), fp, None)
+            temp_sample_object = Sample(fasta_line[1:].strip(), fp, "")
             if single_line:
                 break
-        else:
+        elif temp_sample_object is not None:
             temp_sample_object.data += fasta_line.strip()
+    
+    if temp_sample_object is not None:
+        fasta_samples.append(temp_sample_object)
 
     fasta_fp.close()
     logger.debug(f"Number of samples in {fp}: {len(fasta_samples)}")
