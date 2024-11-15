@@ -106,7 +106,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--fasta-header', help='Column name for fasta path', default='fasta', dest='fasta_header')
     parser.add_argument('-j', '--json', help='Output json format instead of csv', action='store_true', dest='json')
     parser.add_argument('-t', '--fasta-dir', help='Output directory for temporary fasta files', default=os.getcwd(), dest='fasta_dir')
-    parser.add_argument('-r', '--fasta-match', help='Regex to match for fasta files in directory mode', default='.*\.fa(sta)?.*$', dest='fasta_regex')
+    parser.add_argument('-r', '--fasta-match', help='Regex to match for fasta files in directory mode', default='.*\.(fa(a)?(sta)?|y(a)?ml).*$', dest='fasta_regex')
     parser.add_argument('--monomer', help='Create a samplesheet entry for each sample in a fasta file', default=False, action='store_true', dest='monomer')
     parser.add_argument('--version', help='Show version number', default=False, action='store_true', dest='version')
     parser.add_argument('--debug', help='Show debug output', default=False, action='store_true', dest='debug')
