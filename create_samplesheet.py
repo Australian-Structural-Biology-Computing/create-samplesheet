@@ -46,10 +46,12 @@ def read_fasta(fp, read_data=False, single_line=True):
             logger.debug(f"Found header")
             if temp_sample_object is not None:
                 fasta_samples.append(temp_sample_object)
+                logger.debug(f"Added sample {temp_sample_object.name}")
             temp_sample_object = Sample(fasta_line[1:].strip(), fp, "")
             if single_line:
                 break
         elif temp_sample_object is not None:
+            logger.debug(f"Found sample data {fasta_line.strip()}")
             temp_sample_object.data += fasta_line.strip()
     
     if temp_sample_object is not None:
@@ -238,13 +240,19 @@ if __name__ == "__main__":
         samplesheet_path = args.output_file
 
     if mode == MODE_DIR_YAML:
-        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f)) and re.search(args.fasta_regex, f)]         
+        logger.debug(f"Checking {args.dir} for fasta files")
+        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]         
+        logger.debug(f"Fasta files: {file_list}")
+        file_list = [i for i in file_list if re.search(args.fasta_regex, i)]
+        logger.debug(f"File list aginst regex: {file_list}")
         sample_data = []
 
         for file_name in file_list:
-            with open(file_name, "r") as file_fp:
-                sample_data.extend(read_fasta(file_fp, read_data=True, single_line=False))
-        
+            fasta_data = read_fasta(file_name, read_data=True, single_line=False)
+            sample_data.extend(fasta_data)
+            logger.debug(f"Added sample {file_name}, {fasta_data}")
+            logger.debug(f"Sample data {sample_data[-1].data}")
+
         samplesheet_path = args.output_file
         with open(samplesheet_path, "w") as ss_fp:
             create_yaml(sample_data, ss_fp)
