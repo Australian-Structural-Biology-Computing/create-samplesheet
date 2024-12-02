@@ -191,6 +191,24 @@ if __name__ == "__main__":
         with open(samplesheet_path, "w") as ss_fp:
             create_json([sample_data], ss_fp)
 
+    if mode == MODE_STRING_YAML:
+        # Generate metadata for AA string
+        aa_sample_name = sample_name(args.aa_string, seq_chars=args.seq_chars)
+        aa_sample_file_name = file_name(aa_sample_name, prefix=args.aa_prefix, suffix=args.aa_suffix, extension=args.output_extension)
+        aa_path = args.fasta_dir + "/" + aa_sample_file_name 
+
+        # Create the fasta file
+        sample_data = Sample(aa_sample_name, aa_path, args.aa_string)
+        make_fasta(sample_data)
+        
+        if args.output_file == "samplesheet.csv":
+            args.output_file = args.output_file.replace(".csv", ".yaml")
+        samplesheet_path = args.output_file
+
+        with open(samplesheet_path, "w") as ss_fp:
+            create_yaml([sample_data], ss_fp)
+
+
     if mode == MODE_DIR_CSV:
         logger.debug(f"Checking {args.dir} for fasta files")
         file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]         
