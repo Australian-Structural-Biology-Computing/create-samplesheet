@@ -254,5 +254,33 @@ class TestCreateJSON(unittest.TestCase):
 
         self.assertEqual(fp_data, '{"entities": [{"type": "protein", "sequence": "AAAAAA", "count": "1"}, {"type": "protein", "sequence": "AAAAAA", "count": "1"}, {"type": "protein", "sequence": "AAAAAA", "count": "1"}]}')
 
+class TestCreateYAML(unittest.TestCase):
+    def test_create_yaml_single_sample(self):
+        sample_input = create_samplesheet.Sample("TEST", ".tmp.fasta", "AAAAAA")
+
+        with open(".tmp.yaml", "w") as fp:
+            create_samplesheet.create_yaml([sample_input], fp)
+        
+        fp = open(".tmp.yaml", "r")
+        fp_data = fp.read()
+        fp.close()
+
+        self.assertEqual(fp_data, 'sequences:\n- id: TEST\n  sequence: AAAAAA\nversion: 1\n')
+
+    def test_create_yaml_multiple_sample(self):
+        sample_input = []
+        sample_input.append(create_samplesheet.Sample("TEST1", ".tmp1.fasta", "AAAAAA"))
+        sample_input.append(create_samplesheet.Sample("TEST2", ".tmp2.fasta", "AAAAAA"))
+        sample_input.append(create_samplesheet.Sample("TEST3", ".tmp3.fasta", "AAAAAA"))
+
+        with open(".tmp.yaml", "w") as fp:
+            create_samplesheet.create_yaml(sample_input, fp)
+
+        fp = open(".tmp.yaml", "r")
+        fp_data = fp.read()
+        fp.close()
+
+        self.assertEqual(fp_data, "sequences:\n- id: TEST1\n  sequence: AAAAAA\n- id: TEST2\n  sequence: AAAAAA\n- id: TEST3\n  sequence: AAAAAA\nversion: 1\n")
+
 if __name__ == "__main__":
     unittest.main()

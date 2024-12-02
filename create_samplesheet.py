@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import argparse, os, tempfile, json, re, logging, sys
+import argparse, os, tempfile, json, re, logging, sys, yaml
 VERSION="0.4"
 
 # Consts
@@ -7,6 +7,8 @@ MODE_STRING_CSV = 0
 MODE_DIR_CSV = 1
 MODE_STRING_JSON = 2
 MODE_DIR_JSON = 3
+MODE_STRING_YAML = 4
+MODE_DIR_YAML = 5
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -44,10 +46,12 @@ def read_fasta(fp, read_data=False, single_line=True):
             logger.debug(f"Found header")
             if temp_sample_object is not None:
                 fasta_samples.append(temp_sample_object)
+                logger.debug(f"Added sample {temp_sample_object.name}")
             temp_sample_object = Sample(fasta_line[1:].strip(), fp, "")
             if single_line:
                 break
         elif temp_sample_object is not None:
+            logger.debug(f"Found sample data {fasta_line.strip()}")
             temp_sample_object.data += fasta_line.strip()
     
     if temp_sample_object is not None:
@@ -74,6 +78,19 @@ def create_csv(data, header_seq, header_fasta, fp):
         logger.debug(f"Wrote row for {row.name}")
 
     fp.flush()
+
+def create_yaml(data, fp):
+    output_data = {
+        "version": 1,
+        "sequences": []
+    }
+    for row in data:
+        output_data["sequences"].append({
+            "id": row.name, 
+            "sequence": row.data
+        })
+
+    yaml.dump(output_data, fp, default_flow_style=False)
 
 def create_json(data, fp):
     dict_data = {"entities": []}
@@ -105,6 +122,7 @@ if __name__ == "__main__":
     parser.add_argument('-q', '--sequence-header', help='Column name for sequence', default='sequence', dest='seq_header')
     parser.add_argument('-f', '--fasta-header', help='Column name for fasta path', default='fasta', dest='fasta_header')
     parser.add_argument('-j', '--json', help='Output json format instead of csv', action='store_true', dest='json')
+    parser.add_argument('-y', '--yaml', help='Output yaml format instead of csv', action='store_true', dest='yaml')
     parser.add_argument('-t', '--fasta-dir', help='Output directory for temporary fasta files', default=os.getcwd(), dest='fasta_dir')
     parser.add_argument('-r', '--fasta-match', help='Regex to match for fasta files in directory mode', default='.*\.(fa(a)?(sta)?|y(a)?ml).*$', dest='fasta_regex')
     parser.add_argument('--monomer', help='Create a samplesheet entry for each sample in a fasta file', default=False, action='store_true', dest='monomer')
@@ -133,10 +151,14 @@ if __name__ == "__main__":
     if (type(args.seq_chars) is not int):
         raise ValueError("seq_chars is not a number")
 
+    if (args.json and args.yaml):
+        raise ValueError("Invaid mode combination. You cannot set --json and --yaml at the same time")
+
     # Mode
     mode = 0
     mode |= bool(args.dir)
     mode |= args.json << 1
+    mode |= args.yaml << 2
     logger.debug(f"mode: {mode}")
 
     if mode == MODE_STRING_CSV:
@@ -171,6 +193,24 @@ if __name__ == "__main__":
         with open(samplesheet_path, "w") as ss_fp:
             create_json([sample_data], ss_fp)
 
+    if mode == MODE_STRING_YAML:
+        # Generate metadata for AA string
+        aa_sample_name = sample_name(args.aa_string, seq_chars=args.seq_chars)
+        aa_sample_file_name = file_name(aa_sample_name, prefix=args.aa_prefix, suffix=args.aa_suffix, extension=args.output_extension)
+        aa_path = args.fasta_dir + "/" + aa_sample_file_name 
+
+        # Create the fasta file
+        sample_data = Sample(aa_sample_name, aa_path, args.aa_string)
+        make_fasta(sample_data)
+        
+        if args.output_file == "samplesheet.csv":
+            args.output_file = args.output_file.replace(".csv", ".yaml")
+        samplesheet_path = args.output_file
+
+        with open(samplesheet_path, "w") as ss_fp:
+            create_yaml([sample_data], ss_fp)
+
+
     if mode == MODE_DIR_CSV:
         logger.debug(f"Checking {args.dir} for fasta files")
         file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]         
@@ -179,8 +219,10 @@ if __name__ == "__main__":
         logger.debug(f"File list aginst regex: {file_list}")
         sample_data = []
 
+        samplesheet_path = args.output_file
+
         for file_name in file_list:
-            fasta_data = read_fasta(file_name, single_line=(not args.monomer))
+            fasta_data = read_fasta(file_name, read_data=True, single_line=(not args.monomer))
             sample_data.extend(fasta_data)
             logger.debug(f"Added sample {file_name}, {fasta_data}")
         
@@ -198,3 +240,27 @@ if __name__ == "__main__":
                 sample_data.extend(read_fasta(file_fp, read_data=True, single_line=False))
         
         samplesheet_path = args.output_file
+
+    if mode == MODE_DIR_YAML:
+        logger.debug(f"Checking {args.dir} for fasta files")
+        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]         
+        logger.debug(f"Fasta files: {file_list}")
+        file_list = [i for i in file_list if re.search(args.fasta_regex, i)]
+        logger.debug(f"File list aginst regex: {file_list}")
+        sample_data = []
+
+        for file_name in file_list:
+            fasta_data = read_fasta(file_name, read_data=True, single_line=False)
+            sample_data.extend(fasta_data)
+            logger.debug(f"Added sample {file_name}, {fasta_data}")
+            logger.debug(f"Sample data {sample_data[-1].data}")
+
+        if args.output_file == "samplesheet.csv":
+            args.output_file = args.output_file.replace(".csv", ".yaml")
+        samplesheet_path = args.output_file
+
+
+
+        samplesheet_path = args.output_file
+        with open(samplesheet_path, "w") as ss_fp:
+            create_yaml(sample_data, ss_fp)
