@@ -219,8 +219,10 @@ if __name__ == "__main__":
         logger.debug(f"File list aginst regex: {file_list}")
         sample_data = []
 
+        samplesheet_path = args.output_file
+
         for file_name in file_list:
-            fasta_data = read_fasta(file_name, single_line=(not args.monomer))
+            fasta_data = read_fasta(file_name, read_data=True, single_line=(not args.monomer))
             sample_data.extend(fasta_data)
             logger.debug(f"Added sample {file_name}, {fasta_data}")
         
