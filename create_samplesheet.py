@@ -7,6 +7,8 @@ MODE_STRING_CSV = 0
 MODE_DIR_CSV = 1
 MODE_STRING_JSON = 2
 MODE_DIR_JSON = 3
+MODE_STRING_YAML = 4
+MODE_DIR_YAML = 5
 
 # Set up logging
 logger = logging.getLogger(__name__)
