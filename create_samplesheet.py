@@ -149,10 +149,14 @@ if __name__ == "__main__":
     if (type(args.seq_chars) is not int):
         raise ValueError("seq_chars is not a number")
 
+    if (args.json and args.yaml):
+        raise ValueError("Invaid mode combination. You cannot set --json and --yaml at the same time")
+
     # Mode
     mode = 0
     mode |= bool(args.dir)
     mode |= args.json << 1
+    mode |= args.yaml << 2
     logger.debug(f"mode: {mode}")
 
     if mode == MODE_STRING_CSV:
