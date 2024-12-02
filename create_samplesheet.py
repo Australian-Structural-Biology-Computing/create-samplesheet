@@ -255,6 +255,12 @@ if __name__ == "__main__":
             logger.debug(f"Added sample {file_name}, {fasta_data}")
             logger.debug(f"Sample data {sample_data[-1].data}")
 
+        if args.output_file == "samplesheet.csv":
+            args.output_file = args.output_file.replace(".csv", ".yaml")
+        samplesheet_path = args.output_file
+
+
+
         samplesheet_path = args.output_file
         with open(samplesheet_path, "w") as ss_fp:
             create_yaml(sample_data, ss_fp)
