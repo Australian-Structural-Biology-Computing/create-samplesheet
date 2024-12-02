@@ -236,3 +236,15 @@ if __name__ == "__main__":
                 sample_data.extend(read_fasta(file_fp, read_data=True, single_line=False))
         
         samplesheet_path = args.output_file
+
+    if mode == MODE_DIR_YAML:
+        file_list = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f)) and re.search(args.fasta_regex, f)]         
+        sample_data = []
+
+        for file_name in file_list:
+            with open(file_name, "r") as file_fp:
+                sample_data.extend(read_fasta(file_fp, read_data=True, single_line=False))
+        
+        samplesheet_path = args.output_file
+        with open(samplesheet_path, "w") as ss_fp:
+            create_yaml(sample_data, ss_fp)
