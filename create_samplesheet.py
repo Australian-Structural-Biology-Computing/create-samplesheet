@@ -77,6 +77,19 @@ def create_csv(data, header_seq, header_fasta, fp):
 
     fp.flush()
 
+def create_yaml(data, fp):
+    output_data = {
+        "version": 1,
+        "sequences": []
+    }
+    for row in data:
+        output_data["sequences"].append({
+            "id": row.name, 
+            "sequence": row.data
+        })
+
+    yaml.dump(output_data, fp, default_flow_style=False)
+
 def create_json(data, fp):
     dict_data = {"entities": []}
     
