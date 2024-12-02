@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import argparse, os, tempfile, json, re, logging, sys
+import argparse, os, tempfile, json, re, logging, sys, yaml
 VERSION="0.4"
 
 # Consts
