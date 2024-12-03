@@ -33,9 +33,7 @@ def read_fasta(fp, read_data=False, single_line=True):
     fasta_samples = []
     logger.debug(f"Reading {fp}")
 
-    fasta_fp = open(fp, 'r')
-    fasta_fp.seek(0)
-    lines = fasta_fp.readlines()
+    lines = fp.readlines()
     logger.debug(f"Fasta content {lines}")
 
     temp_sample_object = None
@@ -57,7 +55,7 @@ def read_fasta(fp, read_data=False, single_line=True):
     if temp_sample_object is not None:
         fasta_samples.append(temp_sample_object)
 
-    fasta_fp.close()
+    fp.close()
     logger.debug(f"Number of samples in {fp}: {len(fasta_samples)}")
 
     return fasta_samples
@@ -222,9 +220,10 @@ if __name__ == "__main__":
         samplesheet_path = args.output_file
 
         for file_name in file_list:
-            fasta_data = read_fasta(file_name, read_data=True, single_line=(not args.monomer))
-            sample_data.extend(fasta_data)
-            logger.debug(f"Added sample {file_name}, {fasta_data}")
+            with open(file_name, "r") as fp:
+                fasta_data = read_fasta(fp, read_data=True, single_line=(not args.monomer))
+                sample_data.extend(fasta_data)
+                logger.debug(f"Added sample {file_name}, {fasta_data}")
         
         samplesheet_path = args.output_file
         logger.debug(f"Sample data array length: {len(sample_data)}")
@@ -250,10 +249,11 @@ if __name__ == "__main__":
         sample_data = []
 
         for file_name in file_list:
-            fasta_data = read_fasta(file_name, read_data=True, single_line=False)
-            sample_data.extend(fasta_data)
-            logger.debug(f"Added sample {file_name}, {fasta_data}")
-            logger.debug(f"Sample data {sample_data[-1].data}")
+            with open(file_name, "r") as fp:
+                fasta_data = read_fasta(fp, read_data=True, single_line=False)
+                sample_data.extend(fasta_data)
+                logger.debug(f"Added sample {file_name}, {fasta_data}")
+                logger.debug(f"Sample data {sample_data[-1].data}")
 
         if args.output_file == "samplesheet.csv":
             args.output_file = args.output_file.replace(".csv", ".yaml")

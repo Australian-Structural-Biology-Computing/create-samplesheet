@@ -62,12 +62,13 @@ class TestReadFASTA(unittest.TestCase):
         fp = open(".tmp.fasta", "w")
         fp.write(">TEST\nMPGAFSQNSSKRRAVLPRSHR")
         fp.close()
-
-        fasta_output = create_samplesheet.read_fasta(
-            fp=".tmp.fasta",
-            read_data=True,
-            single_line=False
-        )
+        
+        with open(".tmp.fasta", "r") as fasta_fp:
+            fasta_output = create_samplesheet.read_fasta(
+                fp=fasta_fp,
+                read_data=True,
+                single_line=False
+            )
 
         self.assertEqual(len(fasta_output), 1)
         self.assertEqual(fasta_output[0].name, "TEST")
@@ -82,11 +83,12 @@ class TestReadFASTA(unittest.TestCase):
         fp.write(">TEST\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         fp.close()
 
-        fasta_output = create_samplesheet.read_fasta(
-            fp=".tmp.fasta",
-            read_data=True,
-            single_line=False
-        )
+        with open(".tmp.fasta", "r") as fasta_fp:
+            fasta_output = create_samplesheet.read_fasta(
+                fp=fasta_fp,
+                read_data=True,
+                single_line=False
+            )
 
         self.assertEqual(len(fasta_output), 1)
         self.assertEqual(fasta_output[0].name, "TEST")
@@ -101,11 +103,12 @@ class TestReadFASTA(unittest.TestCase):
         fp.write(">TEST\nMPGAFSQNSSKRRAVLPRSHR\n>DEMO\nAAAAAAAAAAAA")
         fp.close()
 
-        fasta_output = create_samplesheet.read_fasta(
-            fp=".tmp.fasta",
-            read_data=True,
-            single_line=False
-        )
+        with open(".tmp.fasta", "r") as fasta_fp:
+            fasta_output = create_samplesheet.read_fasta(
+                fp=fasta_fp,
+                read_data=True,
+                single_line=False
+            )
 
         self.assertEqual(len(fasta_output), 2)
         self.assertEqual(fasta_output[0].name, "TEST")
@@ -120,12 +123,13 @@ class TestReadFASTA(unittest.TestCase):
         fp = open(".tmp.fasta", "w")
         fp.write(">TEST\nMPGAFSQNSS\nKRRAVLPRSHR\n>DEMO\nAAAAAA\nAAAAAA")
         fp.close()
-        
-        fasta_output = create_samplesheet.read_fasta(
-            fp=".tmp.fasta",
-            read_data=True,
-            single_line=False
-        )
+
+        with open(".tmp.fasta", "r") as fasta_fp:        
+            fasta_output = create_samplesheet.read_fasta(
+                fp=fasta_fp,
+                read_data=True,
+                single_line=False
+            )
 
         self.assertEqual(len(fasta_output), 2)
         self.assertEqual(fasta_output[0].name, "TEST")
@@ -141,11 +145,12 @@ class TestReadFASTA(unittest.TestCase):
         fp.write("!!! CHECK IT OUT. I'M IN THE HOUSE LIKE CARPET !!!\n")
         fp.close()
 
-        fasta_output = create_samplesheet.read_fasta(
-            fp=".tmp.fasta",
-            read_data=True,
-            single_line=False
-        )
+        with open(".tmp.fasta", "r") as fasta_fp:
+            fasta_output = create_samplesheet.read_fasta(
+                fp=fasta_fp,
+                read_data=True,
+                single_line=False
+            )
 
         self.assertEqual(len(fasta_output), 0)
 
