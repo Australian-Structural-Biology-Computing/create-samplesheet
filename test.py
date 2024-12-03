@@ -265,7 +265,7 @@ class TestCreateYAML(unittest.TestCase):
         fp_data = fp.read()
         fp.close()
 
-        self.assertEqual(fp_data, 'sequences:\n- id: TEST\n  sequence: AAAAAA\nversion: 1\n')
+        self.assertEqual(fp_data, 'sequences:\n- protein:\n    id: TEST\n    sequence: AAAAAA\nversion: 1\n')
 
     def test_create_yaml_multiple_sample(self):
         sample_input = []
@@ -280,7 +280,7 @@ class TestCreateYAML(unittest.TestCase):
         fp_data = fp.read()
         fp.close()
 
-        self.assertEqual(fp_data, "sequences:\n- id: TEST1\n  sequence: AAAAAA\n- id: TEST2\n  sequence: AAAAAA\n- id: TEST3\n  sequence: AAAAAA\nversion: 1\n")
+        self.assertEqual(fp_data, "sequences:\n- protein:\n    id: TEST1\n    sequence: AAAAAA\n- protein:\n    id: TEST2\n    sequence: AAAAAA\n- protein:\n    id: TEST3\n    sequence: AAAAAA\nversion: 1\n")
 
 if __name__ == "__main__":
     unittest.main()
