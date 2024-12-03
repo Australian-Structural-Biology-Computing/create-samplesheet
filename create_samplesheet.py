@@ -85,10 +85,10 @@ def create_yaml(data, fp):
         "sequences": []
     }
     for row in data:
-        output_data["sequences"].append({
+        output_data["sequences"].append({"protein": {
             "id": row.name, 
             "sequence": row.data
-        })
+        }})
 
     yaml.dump(output_data, fp, default_flow_style=False)
 
