@@ -1,5 +1,6 @@
 # samplesheet-utils
 ![Testing](https://github.com/Australian-Structural-Biology-Computing/create-samplesheet/actions/workflows/python-app.yml/badge.svg)
+
 `samplesheet-utils` (or `samplesheetutils`) is a collection of scripts and utilities for working with samplesheets and FASTA files at the command line. It is primarily designed for use within pipelines.
 
 ## Installation
