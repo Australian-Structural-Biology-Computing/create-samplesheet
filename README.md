@@ -2,6 +2,10 @@
 `samplesheet-utils` (or `samplesheetutils`) is a collection of scripts and utilities for working with samplesheets and FASTA files at the command line. It is primarily designed for use within pipelines.
 
 ## Installation
+### pip
+```bash
+pip3 install samplesheetutils
+```
 ### git
 ```bash
 git clone https://github.com/Australian-Structural-Biology-Computing/create-samplesheet
