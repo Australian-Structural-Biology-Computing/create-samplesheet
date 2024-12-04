@@ -8,6 +8,6 @@ LABEL authors="Nathan Glades <n.glades@unsw.edu.au>" \
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
 	build-essential \
-	ps
+	procps
 
 RUN pip install samplesheetutils
