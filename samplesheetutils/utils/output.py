@@ -14,7 +14,7 @@ def create_yaml_boltz(data, fp):
     }
     for row in data:
         output_data["sequences"].append({"protein": {
-            "id": row.name[:min(5,len(row.name)],
+            "id": row.name[:min(4,len(row.name)],
             "sequence": row.data
         }})
 
