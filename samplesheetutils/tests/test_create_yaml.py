@@ -29,5 +29,5 @@ class TestCreateYAML(unittest.TestCase):
         fp_data = fp.read()
         fp.close()
 
-        self.assertEqual(fp_data, "sequences:\n- protein:\n    id: TEST1\n    sequence: AAAAAA\n- protein:\n    id: TEST2\n    sequence: AAAAAA\n- protein:\n    id: TEST3\n    sequence: AAAAAA\nversion: 1\n")
+        self.assertEqual(fp_data, "sequences:\n- protein:\n    id: TEST\n    sequence: AAAAAA\n- protein:\n    id: TEST\n    sequence: AAAAAA\n- protein:\n    id: TEST\n    sequence: AAAAAA\nversion: 1\n")
         os.remove(".tmp.yaml")
