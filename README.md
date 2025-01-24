@@ -58,6 +58,7 @@ create-samplesheet --directory /home/nathan/experiment/fastas --msa-dir /home/na
     ├── A1.m3a
     └── A2.m3a
 ```
+> **_NOTE:_** Assume that each FASTA file contains a sample with the same name as the file itself. `create-samplesheet` will search for m3a files based on the **sample name** in the FASTA file, not the FASTA filename itself.
 
 ### TODO
 - [ ] Finish documentation
