@@ -2,7 +2,7 @@ FROM python:3.9-slim
 
 LABEL authors="Nathan Glades <n.glades@unsw.edu.au>" \
 	title="Australian-Structural-Biology-Computing/create-samplesheet" \
-	Version="1.0" \
+	Version="1.1" \
 	description="Dockerfile containing samplesheetutils"
 
 RUN apt-get update && \
@@ -10,4 +10,4 @@ RUN apt-get update && \
 	build-essential \
 	procps
 
-RUN pip install samplesheetutils
+RUN pip install samplesheetutils==1.1
