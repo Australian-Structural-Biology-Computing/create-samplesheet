@@ -31,3 +31,16 @@ class TestCreateYAML(unittest.TestCase):
 
         self.assertEqual(fp_data, "sequences:\n- protein:\n    id: TEST\n    sequence: AAAAAA\n- protein:\n    id: TEST\n    sequence: AAAAAA\n- protein:\n    id: TEST\n    sequence: AAAAAA\nversion: 1\n")
         os.remove(".tmp.yaml")
+    
+    def test_create_yaml_single_sample_with_msa(self):
+        sample_input = Sample("TEST", ".tmp.fasta", "AAAAAA", "TEST.a3m")
+
+        with open(".tmp.yaml", "w") as fp:
+            create_yaml_boltz([sample_input], fp)
+
+        fp = open(".tmp.yaml", "r")
+        fp_data = fp.read()
+        fp.close()
+
+        self.assertEqual(fp_data, 'sequences:\n- protein:\n    id: TEST\n    sequence: AAAAAA\n    msa: TEST.a3m\nversion: 1\n')
+        os.remove(".tmp.yaml")
