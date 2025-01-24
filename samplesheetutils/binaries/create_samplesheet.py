@@ -24,6 +24,7 @@ def create_samplesheet():
         epilog="Written by Nathan Glades <n.glades@unsw.edu.au>")
 
     parser.add_argument('-a', '--aa-string', help='Single amino acid string', dest='aa_string')
+    parser.add_argument('-m', '--msa-dir', help='Directory containing corresponding MSA files for samples', dest='msa_dir')
     parser.add_argument('-d', '--directory', help='Directory containing fasta files', dest='dir')
     parser.add_argument('-p', '--prefix', help='Filename prefix for amino acid strings', dest='aa_prefix', default='manual_entry')
     parser.add_argument('-s', '--suffix', help='Filename suffix for amino acid strings', dest='aa_suffix', default='af2')
