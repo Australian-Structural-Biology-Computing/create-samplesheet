@@ -7,7 +7,7 @@ setup(
     author_email="n.glades@unsw.edu.au",
     packages=find_packages(),
     description="Collection of utilities for creating and transforming samplesheets and samples",
-    install_requires=["pyyaml==6.0.2"],
+    install_requires=["pyyaml==6.0.1"],
     
     entry_points={
         'console_scripts': [

@@ -1,8 +1,9 @@
 class Sample:
-    def __init__(self, name, path, data):
+    def __init__(self, name, path, data, msa = None):
         self.name = name
         self.path = path
         self.data = data
+        self.msa = msa
 
 def sample_name(aa_seq, seq_chars=6):
     trunc_aa_seq = aa_seq[:min(seq_chars, len(aa_seq))]

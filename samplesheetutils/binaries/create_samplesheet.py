@@ -16,6 +16,9 @@ MODE_DIR_YAML = 5
 logger = logging.getLogger(__name__)
 logging.basicConfig()
 
+def version():
+    print("")
+
 #if __name__ == "__main__":
 def create_samplesheet():
     parser = argparse.ArgumentParser(
@@ -24,6 +27,7 @@ def create_samplesheet():
         epilog="Written by Nathan Glades <n.glades@unsw.edu.au>")
 
     parser.add_argument('-a', '--aa-string', help='Single amino acid string', dest='aa_string')
+    parser.add_argument('-m', '--msa-dir', help='Directory containing corresponding MSA files for samples', dest='msa_dir')
     parser.add_argument('-d', '--directory', help='Directory containing fasta files', dest='dir')
     parser.add_argument('-p', '--prefix', help='Filename prefix for amino acid strings', dest='aa_prefix', default='manual_entry')
     parser.add_argument('-s', '--suffix', help='Filename suffix for amino acid strings', dest='aa_suffix', default='af2')
@@ -73,6 +77,7 @@ def create_samplesheet():
     mode |= args.json << 1
     mode |= args.yaml << 2
     logger.debug(f"mode: {mode}")
+    logger.debug("Will attempt to locate MSAs" if args.msa_dir else "Will NOT attempt to locate MSAs")
 
     if mode == MODE_STRING_CSV:
         # Generate metadata for AA string
@@ -166,6 +171,16 @@ def create_samplesheet():
         for file_name in file_list:
             with open(file_name, "r") as fp:
                 fasta_data = read_fasta(fp, read_data=True, single_line=False)
+                # Attempt to find MSA if the MSA directory flag is set
+                if args.msa_dir:
+                    logger.debug(f"Searching for MSAs of {file_name}")
+                    for fsi, i in zip(fasta_data, range(len(fasta_data))):
+                        logger.debug("Checking for " + os.path.join(args.msa_dir, f"{fsi.name}.m3a"))
+                        if os.path.isfile(os.path.join(args.msa_dir, f"{fsi.name}.m3a")):
+                                fasta_data[i].msa = os.path.join(args.msa_dir, f"{fsi.name}.m3a")
+                                logger.debug(f"Added pre-computed MSA for sample {fsi.name} of {file_name}: {fsi.msa}")
+                        else:
+                            logger.debug(f"Corresponding MSA for sample {fsi.name} of {file_name} was not found, despite --msa-dir being set. Expected file name is {fsi.name}.m3a. Continuing with no MSA...") 
                 sample_data.extend(fasta_data)
                 logger.debug(f"Added sample {file_name}, {fasta_data}")
                 logger.debug(f"Sample data {sample_data[-1].data}")
