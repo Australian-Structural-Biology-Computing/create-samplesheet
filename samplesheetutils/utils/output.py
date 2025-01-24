@@ -13,10 +13,17 @@ def create_yaml_boltz(data, fp):
         "sequences": []
     }
     for row in data:
-        output_data["sequences"].append({"protein": {
+        append_data = {"protein": {
             "id": row.name[:min(4,len(row.name))],
             "sequence": row.data
-        }})
+        }}
+        if row.msa:
+            append_data["protein"]["msa"] = row.msa
+        #output_data["sequences"].append({"protein": {
+        #    "id": row.name[:min(4,len(row.name))],
+        #    "sequence": row.data
+        #}})
+        output_data["sequences"].append(append_data)
 
     yaml.dump(output_data, fp, default_flow_style=False)
 
