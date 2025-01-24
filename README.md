@@ -35,6 +35,29 @@ create-samplesheet [ARGS]
 - `-o --output-file`: Samplesheet filename. Default is `samplesheet.[ext]` [ext] depends on mode
 - `-j --json`: Ouptut JSON formatted samplesheet
 - `-y --yaml`: Output YAML formatted samplesheet
+- `-m --msa-dir`: Directory to search for corresponding MSA files in (Only accessible in yaml output)
+
+#### `--msa-dir`
+When using the YAML output mode (`-y`, `--yaml`), you can provide a path to a directory containg sample's pre-computed multiple sequence alignment files (`.a3m` files). In order for these files to automatically be associated with it's corresponding sample, the filenames must follow the following format:
+
+```
+[SAMPLE NAME].a3m
+```
+
+**Example Usage:**
+```bash
+create-samplesheet --directory /home/nathan/experiment/fastas --msa-dir /home/nathan/experiment/fastas/msas --yaml
+```
+
+**Directory Structure**
+```
+/home/nathan/experiment/fastas
+├── A1.fasta
+├── A2.fasta
+└── msas
+    ├── A1.m3a
+    └── A2.m3a
+```
 
 ### TODO
 - [ ] Finish documentation
